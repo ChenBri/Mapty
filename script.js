@@ -13,20 +13,32 @@ const inputElevation = document.querySelector('.form__input--elevation');
 
 
 
-navigator.geolocation.getCurrentPosition(function(location){
+navigator.geolocation.getCurrentPosition(function (location) {
     const lat = location.coords.latitude;
     const lon = location.coords.longitude;
     const coords = [lat, lon]
     const map = L.map('map').setView(coords, 14);
 
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
 
-L.marker(coords).addTo(map)
-    .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
-    .openPopup();
-}, function(){
+    
+
+    map.on('click', function(e){
+        const {lat, lng} = e.latlng;
+        L.marker([lat, lng]).addTo(map)
+        .bindPopup(L.popup({
+            maxWidth: 250,
+            minWidth: 50,
+            autoClose: false,
+            closeOnClick: false,
+            className: true === true ? 'running-popup' : 'cycling-popup'
+        }))
+        .setPopupContent('Test')
+        .openPopup();
+    })
+
+}, function () {
     alert('Failed to get current location')
 });
-
