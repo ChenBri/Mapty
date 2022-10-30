@@ -16,8 +16,17 @@ const inputElevation = document.querySelector('.form__input--elevation');
 navigator.geolocation.getCurrentPosition(function(location){
     const lat = location.coords.latitude;
     const lon = location.coords.longitude;
-    const url = `https://www.google.com/maps/@${lat},${lon},15z`;
-    console.log(url)
+    const coords = [lat, lon]
+    const map = L.map('map').setView(coords, 14);
+
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+
+L.marker(coords).addTo(map)
+    .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+    .openPopup();
 }, function(){
     alert('Failed to get current location')
-})
+});
+
