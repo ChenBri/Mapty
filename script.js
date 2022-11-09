@@ -49,7 +49,6 @@ class Running extends Workout {
     this.cadence = cadence;
     this.calcPace();
     this._setDescription();
-    console.log(this.description);
   }
 
   calcPace() {
@@ -65,7 +64,6 @@ class Cycling extends Workout {
     this.elevationGain = elevationGain;
     this.calcSpeed();
     this._setDescription();
-    console.log(this.description);
   }
 
   calcSpeed() {
@@ -89,6 +87,8 @@ class App {
     form.addEventListener('submit', this._newWorkout.bind(this));
     inputType.addEventListener('change', this._toggleElevation);
     containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
+
+    this._getLocalStorage();
   }
 
   _getPosition() {
@@ -112,11 +112,14 @@ class App {
     }).addTo(this.#map);
 
     this.#map.on('click', this._showForm.bind(this));
+
+    this.#workouts.forEach(work => {
+      this._renderWorkoutMarker(work);
+    });
   }
 
   _showForm(mapE) {
     this.#mapEvent = mapE;
-    console.log(mapE);
     form.classList.remove('hidden');
   }
 
@@ -169,12 +172,13 @@ class App {
       workout = new Cycling([lat, lng], distance, duration, elevation);
     }
     this.#workouts.push(workout);
-    console.log(this.#workouts);
 
     this._hideForm();
 
     this._renderWorkoutMarker(workout);
     this._renderWorkout(workout);
+
+    this._setLocalStorage();
   }
 
   _renderWorkoutMarker(workout) {
@@ -240,25 +244,37 @@ class App {
           </div>
         </li>`;
     }
-    console.log(html);
 
     form.insertAdjacentHTML('afterend', html);
   }
 
   _moveToPopup(e) {
     const workoutEl = e.target.closest('.workout');
-    console.log(workoutEl);
 
     if (!workoutEl) {
       return;
     }
 
     const workout = this.#workouts.find(i => +i.id === +workoutEl.dataset.id);
-    console.log(workout);
 
     this.#map.setView(workout.coords, 14, {
       animate: true,
       pan: { duration: 1 },
+    });
+  }
+
+  _setLocalStorage() {
+    localStorage.setItem('workout', JSON.stringify(this.#workouts));
+  }
+
+  _getLocalStorage() {
+    let data = JSON.parse(localStorage.getItem('workout'));
+
+    if (!data) return;
+    this.#workouts = data;
+
+    this.#workouts.forEach(work => {
+      this._renderWorkout(work);
     });
   }
 }
